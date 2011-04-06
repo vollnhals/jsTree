@@ -55,6 +55,9 @@
 #vakata-contextmenu.jstree-default-context li.vakata-separator { background:white; border-top:1px solid #e0e0e0; margin:0; }
 #vakata-contextmenu.jstree-default-context li ul { margin-left:-4px; }
 
+/* placeholder height is set in js to match line height of li elements */
+#jstree-placeholder {background-color:red; margin-left: 25px; width: 50px;}
+
 /* IE6 BEGIN */
 .jstree-default li, 
 .jstree-default ins,

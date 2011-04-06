@@ -1910,7 +1910,8 @@
 				cw : false,
 				ch : false,
 				i1 : false,
-				i2 : false
+				i2 : false,
+                target: null,
 			};
 			this.get_container()
 				.bind("mouseenter.jstree", $.proxy(function () {
@@ -1978,6 +1979,13 @@
 					}, this))
 				.delegate("a", "mouseleave.jstree", $.proxy(function (e) { 
 						if($.vakata.dnd.is_drag && $.vakata.dnd.user_data.jstree) {
+                            // remember last known status for placeholder drop
+                            this.data.dnd.placeholder = {};
+                            this.data.dnd.placeholder.dnd_show = this.dnd_show();
+                            this.data.dnd.placeholder.o = o;
+                            this.data.dnd.placeholder.r = r;
+                            this.data.dnd.placeholder.e = e[this._get_settings().dnd.copy_modifier + "Key"];
+
 							this.data.dnd.after		= false;
 							this.data.dnd.before	= false;
 							this.data.dnd.inside	= false;
@@ -1999,7 +2007,22 @@
 						if($.vakata.dnd.is_drag && $.vakata.dnd.user_data.jstree) {
 							this.dnd_finish(e);
 						}
-					}, this));
+					}, this))
+                .delegate("#jstree-placeholder", "mouseenter.jstree", $.proxy(function (e) {
+                        if($.vakata.dnd.is_drag && $.vakata.dnd.user_data.jstree) {
+                             $.vakata.dnd.helper.children("ins").attr("class","jstree-ok");
+                        }
+                    }, this))
+                .delegate("#jstree-placeholder", "mouseleave.jstree", $.proxy(function (e) {
+                        if($.vakata.dnd.is_drag && $.vakata.dnd.user_data.jstree) {
+                            $.vakata.dnd.helper.children("ins").attr("class","jstree-invalid");
+                        }
+                    }, this))
+                .delegate("#jstree-placeholder", "mouseup.jstree", $.proxy(function (e) {
+                        if($.vakata.dnd.is_drag && $.vakata.dnd.user_data.jstree) {
+                            this.dnd_placeholder_finish(e.currentTarget);
+                        }
+                    }, this));
 
 			$(document)
 				.bind("drag_stop.vakata", $.proxy(function () {
@@ -2121,19 +2144,25 @@
 					}
 				}, this));
 				if(r === false) { $.vakata.dnd.helper.children("ins").attr("class","jstree-invalid"); }
-				
 				pos = rtl ? (this.data.dnd.off.right - 18) : (this.data.dnd.off.left + 10);
+                // we are going to show the placeholder, set line height
+                placeholder.css("height", this.data.core.li_height);
+
 				switch(r) {
 					case "before":
+                        placeholder.detach().insertBefore(this.data.dnd.target.parent()).show();
 						m.css({ "left" : pos + "px", "top" : (this.data.dnd.off.top - 6) + "px" }).show();
 						break;
 					case "after":
+                        placeholder.detach().insertAfter(this.data.dnd.target.parent()).show();
 						m.css({ "left" : pos + "px", "top" : (this.data.dnd.off.top + this.data.core.li_height - 7) + "px" }).show();
 						break;
 					case "inside":
+                        placeholder.detach().appendTo(this.data.dnd.target.parent()).show();
 						m.css({ "left" : pos + ( rtl ? -4 : 4) + "px", "top" : (this.data.dnd.off.top + this.data.core.li_height/2 - 5) + "px" }).show();
 						break;
 					default:
+                        placeholder.detach().hide();
 						m.hide();
 						break;
 				}
@@ -2155,12 +2184,32 @@
 				}
 				o = false;
 				r = false;
+                placeholder.detach().hide();
 				m.hide();
 			},
+            dnd_placeholder_finish : function(e) {
+                // TODO: test foreign
+				if(this.data.dnd.foreign) {
+					if(this.data.dnd.placeholder.dnd_show) {
+						this._get_settings().dnd.drag_finish.call(this, { "o" : this.data.dnd.placeholder.o, "r" : this.data.dnd.placeholder.r });
+					}
+				}
+                else {
+                    this.move_node(this.data.dnd.placeholder.o, this.data.dnd.placeholder.r, this.data.dnd.placeholder.dnd_show, this.data.dnd.placeholder.e);
+                }
+                o = false;
+                r = false;
+                placeholder.detach().hide();
+                m.hide();
+            },
 			dnd_enter : function (obj) {
 				var s = this._get_settings().dnd;
 				this.data.dnd.prepared = false;
 				r = this._get_node(obj);
+
+                // save target for place holder
+                this.data.dnd.target = $(obj);
+
 				if(s.check_timeout) { 
 					// do the calculations after a minimal timeout (users tend to drag quickly to the desired location)
 					if(this.data.dnd.to1) { clearTimeout(this.data.dnd.to1); }
@@ -2206,13 +2255,15 @@
 			'#jstree-marker { padding:0; margin:0; line-height:12px; font-size:1px; overflow:hidden; height:12px; width:8px; position:absolute; top:-30px; z-index:10000; background-repeat:no-repeat; display:none; background-color:silver; } ';
 		$.vakata.css.add_sheet({ str : css_string });
 		m = $("<div>").attr({ id : "jstree-marker" }).hide().appendTo("body");
+        placeholder =  $("<li>").attr({ id : 'jstree-placeholder'}).hide();
+
 		$(document).bind("drag_start.vakata", function (e, data) {
 			if(data.data.jstree) { 
 				m.show(); 
 			}
 		});
 		$(document).bind("drag_stop.vakata", function (e, data) {
-			if(data.data.jstree) { m.hide(); }
+			if(data.data.jstree) { m.hide(); placeholder.detach().hide() }
 		});
 	});
 })(jQuery);
