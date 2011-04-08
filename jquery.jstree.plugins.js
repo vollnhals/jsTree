@@ -138,6 +138,10 @@
                 target: null,
 			};
 			this.get_container()
+                // save prepared_move data for later use in check_move
+                .bind("prepare_move.jstree", $.proxy(function (e, data) {
+                        this.data.dnd_placeholder.prepared_move = data.rslt;
+                    }, this))
 				.bind("mouseenter.jstree", $.proxy(function () {
 						if($.vakata.dnd.is_drag && $.vakata.dnd.user_data.jstree && this.data.themes) {
 							m.attr("class", "jstree-" + this.data.themes.theme); 
@@ -321,6 +325,15 @@
 			drag_check		: function (data) { return { after : false, before : false, inside : true }; }
 		},
 		_fn : {
+            // overwrite check_move to disable superfluous drop target
+			check_move : function () {
+                if (this.data.dnd_placeholder.prepared_move.p == "before" &&
+                    this.data.dnd_placeholder.prepared_move.or[0] === this.data.dnd_placeholder.prepared_move.r[0] &&
+                    this.data.dnd_placeholder.prepared_move.or.prev()[0] === this.data.dnd_placeholder.prepared_move.o[0]) {
+                    return false; 
+                }
+				return this.__call_old();
+            },
 			dnd_prepare : function () {
 				if(!r || !r.length) { return; }
 				this.data.dnd_placeholder.off = r.offset();
