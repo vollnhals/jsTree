@@ -22,12 +22,8 @@
 (function ($) {
 	$.jstree.plugin("pedantic_html_data", {
 		__init : function () { 
-                        console.profile("phd:init");
-			// this used to use html() and clean the whitespace, but this way any attached data was lost
-			// this.data.pedantic_html_data.original_container_html = this.get_container().find(" > ul > li").clone(true);
 			this.data.pedantic_html_data.original_container_html = this.get_container().children().clone(true);
 			// LI nodes must not contain whitespace - otherwise nodes appear a bit to the right
-                        console.profileEnd();
 		},
 		defaults : { 
 			data : false,
@@ -61,7 +57,7 @@
 						if(s_call) { s_call.call(this); }
 						break;
 					case (!!s.data && !s.ajax) || (!!s.data && !!s.ajax && (!obj || obj === -1)):
-                                                // UNTESTED
+                        // UNTESTED
 						if(!obj || obj == -1) {
 							d = $(s.data);
 							if(!d.is("ul")) { d = $("<ul>").append(d); }
@@ -72,7 +68,7 @@
 						if(s_call) { s_call.call(this); }
 						break;
 					case (!s.data && !!s.ajax) || (!!s.data && !!s.ajax && obj && obj !== -1):
-                                                // UNTESTED
+                        // UNTESTED
 						obj = this._get_node(obj);
 						error_func = function (x, t, e) {
 							var ef = this.get_settings().pedantic_html_data.ajax.error; 
