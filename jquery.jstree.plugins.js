@@ -500,7 +500,13 @@
 			},
 			start_drag : function (obj, e) {
 				o = this._get_node(obj);
-				if(this.data.ui && this.is_selected(o)) { o = this._get_node(null, true); }
+				if(this.data.ui && this.is_selected(o)) { 
+                    o = this._get_node(null, true); 
+                }
+                else {
+                    this.deselect_all();
+                    this.select_node(o, true);
+                }
 				$.vakata.dnd.drag_start(e, { jstree : true, obj : o }, "<ins class='jstree-icon'></ins>" + (o.length > 1 ? "Multiple selection" : this.get_text(o)) );
 				if(this.data.themes) { 
 					m.attr("class", "jstree-" + this.data.themes.theme); 
