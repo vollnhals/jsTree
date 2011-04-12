@@ -56,6 +56,7 @@
 #vakata-contextmenu.jstree-default-context li ul { margin-left:-4px; }
 
 /* placeholder height is set in js to match line height of li elements */
+/* placeholder should be wide enough! */
 #jstree-placeholder {background-color:red; margin-left: 25px; width: 50px;}
 
 /* IE6 BEGIN */

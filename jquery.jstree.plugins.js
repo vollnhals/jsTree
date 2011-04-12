@@ -219,6 +219,10 @@
 							this.data.dnd_placeholder.inside	= false;
 							$.vakata.dnd.helper.children("ins").attr("class","jstree-invalid");
 							m.hide();
+                            // fade out placeholder if not mouse entering it immediatly
+                            placeholder.data("fadeOut", true);
+                            setTimeout(function () { if (placeholder.data("fadeOut")) placeholder.detach().hide(); }, 200);
+
 							if(r && r[0] === e.target.parentNode) {
 								if(this.data.dnd_placeholder.to1) {
 									clearTimeout(this.data.dnd_placeholder.to1);
@@ -238,11 +242,13 @@
 					}, this))
                 .delegate("#jstree-placeholder", "mouseenter.jstree", $.proxy(function (e) {
                         if($.vakata.dnd.is_drag && $.vakata.dnd.user_data.jstree) {
-                             $.vakata.dnd.helper.children("ins").attr("class","jstree-ok");
+                            placeholder.data("fadeOut", false);
+                            $.vakata.dnd.helper.children("ins").attr("class","jstree-ok");
                         }
                     }, this))
                 .delegate("#jstree-placeholder", "mouseleave.jstree", $.proxy(function (e) {
                         if($.vakata.dnd.is_drag && $.vakata.dnd.user_data.jstree) {
+                            placeholder.detach().hide();
                             $.vakata.dnd.helper.children("ins").attr("class","jstree-invalid");
                         }
                     }, this))
@@ -388,15 +394,15 @@
 
 				switch(r) {
 					case "before":
-                        placeholder.detach().insertBefore(this.data.dnd_placeholder.target.parent()).show();
+                        this.move_placeholder(this.data.dnd_placeholder.target.parent(), r);
 						m.css({ "left" : pos + "px", "top" : (this.data.dnd_placeholder.off.top - 6) + "px" }).show();
 						break;
 					case "after":
-                        placeholder.detach().insertAfter(this.data.dnd_placeholder.target.parent()).show();
+                        this.move_placeholder(this.data.dnd_placeholder.target.parent(), r);
 						m.css({ "left" : pos + "px", "top" : (this.data.dnd_placeholder.off.top + this.data.core.li_height - 7) + "px" }).show();
 						break;
 					case "inside":
-                        placeholder.detach().appendTo(this.data.dnd_placeholder.target.parent()).show();
+                        this.move_placeholder(this.data.dnd_placeholder.target.parent(), r);
 						m.css({ "left" : pos + ( rtl ? -4 : 4) + "px", "top" : (this.data.dnd_placeholder.off.top + this.data.core.li_height/2 - 5) + "px" }).show();
 						break;
 					default:
@@ -406,6 +412,21 @@
 				}
 				return r;
 			},
+            move_placeholder : function (target, r) {
+                switch(r) {
+                    case "before":
+                        if (placeholder.next()[0] !== target[0])
+                            placeholder.detach().hide().insertBefore(target).fadeIn();
+                        break;
+                    case "after":
+                        if (placeholder.prev()[0] !== target[0])
+                            placeholder.detach().hide().insertAfter(target).fadeIn();
+                        break;
+                    case "inside":
+                        placeholder.detach().hide().appendTo(target).fadeIn();
+                        break;
+                }
+            },
 			dnd_open : function () {
 				this.data.dnd_placeholder.to2 = false;
 				this.open_node(r, $.proxy(this.dnd_prepare,this), true);
