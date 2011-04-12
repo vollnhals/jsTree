@@ -533,6 +533,7 @@
 		$(document).bind("drag_start.vakata", function (e, data) {
 			if(data.data.jstree) { 
 				m.show(); 
+                placeholder.width(data.data.obj.children("a").width());
 			}
 		});
 		$(document).bind("drag_stop.vakata", function (e, data) {
