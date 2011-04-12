@@ -663,4 +663,40 @@
 })(jQuery);
 //*/
 
+/*
+ * hide / show span when renaming plugin
+ */
+(function ($) {
+    $.jstree.plugin("span", {
+        // show span again after rename
+		__init : function () {
+            this.get_container().bind("rename.jstree", function (e, data) {
+                data.rslt.obj.children("span").show();
+            });
+        },
+        // hide span before rename
+        _fn : {
+            rename : function (obj) {
+				node = this._get_node(obj);
+                node.children("span").hide();
+                return this.__call_old(obj);
+            }
+        },
+    });
+})(jQuery);
+//*/
 
+/*
+ * double click rename plugin
+ */
+(function ($) {
+    $.jstree.plugin("dblclick_rename", {
+		__init : function () {
+            var c = this.get_container();
+            c.delegate("a", "dblclick", function () {
+                c.jstree("rename", this);
+            });
+        },
+    });
+})(jQuery);
+//*/
