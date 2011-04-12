@@ -700,3 +700,19 @@
     });
 })(jQuery);
 //*/
+
+/*
+ * hover tooltips plugin
+ */
+(function ($) {
+    $.jstree.plugin("tooltips", {
+		__init : function () {
+            var c = this.get_container();
+            c.bind("hover_node.jstree", function (e, data) {
+                var tooltip = c.jstree("get_text", data.rslt.obj) + "  -  " + data.rslt.obj.children("span").text();
+                data.rslt.obj.children("a").attr("title", tooltip);
+            });
+        },
+    });
+})(jQuery);
+//*/
