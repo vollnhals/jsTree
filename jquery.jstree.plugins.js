@@ -402,11 +402,12 @@
 				switch(r) {
 					case "before":
                         this.move_placeholder(this.data.dnd_placeholder.target.parent(), r);
-						m.css({ "left" : pos + "px", "top" : (this.data.dnd_placeholder.off.top - 6) + "px" }).show();
 						break;
 					case "after":
                         this.move_placeholder(this.data.dnd_placeholder.target.parent(), r);
-						m.css({ "left" : pos + "px", "top" : (this.data.dnd_placeholder.off.top + this.data.core.li_height - 7) + "px" }).show();
+                        // only show marker if we are not targetting a leaf
+                        if (!this.data.dnd_placeholder.target.parent().hasClass("jstree-leaf"))
+						    m.css({ "left" : pos + "px", "top" : (this.data.dnd_placeholder.off.top + this.data.core.li_height - 7) + "px" }).show();
 						break;
 					case "inside":
                         this.move_placeholder(this.data.dnd_placeholder.target.parent(), r);
