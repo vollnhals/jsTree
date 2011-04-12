@@ -57,7 +57,7 @@
 
 /* placeholder height is set in js to match line height of li elements */
 /* placeholder should be wide enough! */
-#jstree-placeholder {background-color:red; margin-left: 25px; width: 50px;}
+#jstree-placeholder {background-color:red; margin-left: 25px; width: 100px;}
 
 /* IE6 BEGIN */
 .jstree-default li, 
