@@ -194,6 +194,7 @@
 					}, this))
 				.delegate("a", "mouseenter.jstree", $.proxy(function (e) { 
 						if($.vakata.dnd.is_drag && $.vakata.dnd.user_data.jstree) {
+                            placeholder.data("fadeOut", false);
 							this.dnd_enter(e.currentTarget);
 						}
 					}, this))
@@ -248,7 +249,8 @@
                     }, this))
                 .delegate("#jstree-placeholder", "mouseleave.jstree", $.proxy(function (e) {
                         if($.vakata.dnd.is_drag && $.vakata.dnd.user_data.jstree) {
-                            placeholder.detach().hide();
+                            placeholder.data("fadeOut", true);
+                            setTimeout(function () { if (placeholder.data("fadeOut")) placeholder.detach().hide(); }, 200);
                             $.vakata.dnd.helper.children("ins").attr("class","jstree-invalid");
                         }
                     }, this))
