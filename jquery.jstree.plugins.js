@@ -538,6 +538,13 @@
 		$(document).bind("drag_stop.vakata", function (e, data) {
 			if(data.data.jstree) { m.hide(); placeholder.detach().hide() }
 		});
+
+        if(typeof $.hotkeys !== "undefined") {
+			$(document).bind("keydown", "esc", function (e) { 
+                $.vakata.dnd.drag_stop(e);
+                e.preventDefault();
+            });
+        }
 	});
 })(jQuery);
 
