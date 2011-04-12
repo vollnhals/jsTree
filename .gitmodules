@@ -1,0 +1,3 @@
+[submodule "jstree-grid"]
+	path = jstree-grid
+	url = https://github.com/deitch/jstree-grid.git
