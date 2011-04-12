@@ -401,16 +401,16 @@
 
 				switch(r) {
 					case "before":
-                        this.move_placeholder(this.data.dnd_placeholder.target.parent(), r);
+                        this.move_placeholder(this.data.dnd_placeholder.target, r);
 						break;
 					case "after":
-                        this.move_placeholder(this.data.dnd_placeholder.target.parent(), r);
-                        // only show marker if we are not targetting a leaf
-                        if (!this.data.dnd_placeholder.target.parent().hasClass("jstree-leaf"))
+                        this.move_placeholder(this.data.dnd_placeholder.target, r);
+                        // only show marker if we are not targeting a leaf
+                        if (!this.data.dnd_placeholder.target.hasClass("jstree-leaf"))
 						    m.css({ "left" : pos + "px", "top" : (this.data.dnd_placeholder.off.top + this.data.core.li_height - 7) + "px" }).show();
 						break;
 					case "inside":
-                        this.move_placeholder(this.data.dnd_placeholder.target.parent(), r);
+                        this.move_placeholder(this.data.dnd_placeholder.target, r);
 						m.css({ "left" : pos + ( rtl ? -4 : 4) + "px", "top" : (this.data.dnd_placeholder.off.top + this.data.core.li_height/2 - 5) + "px" }).show();
 						break;
 					default:
@@ -475,7 +475,7 @@
 				r = this._get_node(obj);
 
                 // save target for place holder
-                this.data.dnd_placeholder.target = $(obj);
+                this.data.dnd_placeholder.target = $(obj).parent();
 
 				if(s.check_timeout) { 
 					// do the calculations after a minimal timeout (users tend to drag quickly to the desired location)
