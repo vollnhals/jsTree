@@ -331,12 +331,17 @@
 			drag_check		: function (data) { return { after : false, before : false, inside : true }; }
 		},
 		_fn : {
-            // overwrite check_move to disable superfluous drop target
+            // overwrite check_move to disable superfluous drop targets
 			check_move : function () {
                 if (this.data.dnd_placeholder.prepared_move.p == "before" &&
                     this.data.dnd_placeholder.prepared_move.or[0] === this.data.dnd_placeholder.prepared_move.r[0] &&
                     this.data.dnd_placeholder.prepared_move.or.prev()[0] === this.data.dnd_placeholder.prepared_move.o[0]) {
                     return false; 
+                } 
+                else if (this.data.dnd_placeholder.prepared_move.p == "inside" &&
+                    this.data.dnd_placeholder.prepared_move.np[0] === this.data.dnd_placeholder.prepared_move.op[0] &&
+                    this.data.dnd_placeholder.prepared_move.o.hasClass("jstree-last")) {
+                    return false;
                 }
 				return this.__call_old();
             },
