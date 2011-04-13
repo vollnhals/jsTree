@@ -679,7 +679,8 @@
             rename : function (obj) {
 				node = this._get_node(obj);
                 node.children("span").hide();
-                return this.__call_old(obj);
+                // call without any argument, so that original arguments are used
+                return this.__call_old();
             }
         },
     });
