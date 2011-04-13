@@ -440,6 +440,10 @@
 				this.open_node(r, $.proxy(this.dnd_prepare,this), true);
 			},
 			dnd_finish : function (e) {
+                // hide immidiately to prevent graphic glitch if server is slow
+                placeholder.detach().hide();
+                m.hide();
+
 				if(this.data.dnd_placeholder.foreign) {
 					if(this.data.dnd_placeholder.after || this.data.dnd_placeholder.before || this.data.dnd_placeholder.inside) {
 						this._get_settings().dnd_placeholder.drag_finish.call(this, { "o" : o, "r" : r });
@@ -451,10 +455,12 @@
 				}
 				o = false;
 				r = false;
-                placeholder.detach().hide();
-				m.hide();
 			},
             dnd_placeholder_finish : function(e) {
+                // hide immidiately to prevent graphic glitch if server is slow
+                placeholder.detach().hide();
+                m.hide();
+
                 // TODO: test foreign
 				if(this.data.dnd_placeholder.foreign) {
 					if(this.data.dnd_placeholder.placeholder.dnd_show) {
@@ -466,8 +472,6 @@
                 }
                 o = false;
                 r = false;
-                placeholder.detach().hide();
-                m.hide();
             },
 			dnd_enter : function (obj) {
 				var s = this._get_settings().dnd_placeholder;
