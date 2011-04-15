@@ -730,3 +730,19 @@
     });
 })(jQuery);
 //*/
+
+/*
+ * select newly created nodes plugin
+ */
+(function ($) {
+    $.jstree.plugin("select_created_nodes", {
+		__init : function () {
+            var c = this.get_container();
+            c.bind("create_node.jstree", $.proxy(function (e, data) {
+                c.jstree("deselect_all");
+                c.jstree("select_node", data.rslt.obj, true);
+            }), this);
+        },
+    });
+})(jQuery);
+//*/
