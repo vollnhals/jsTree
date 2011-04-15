@@ -507,6 +507,9 @@
 				}
 			},
 			start_drag : function (obj, e) {
+                // HACK: reset li_height because early initialisation returns wrong result
+                this.data.core.li_height = this.get_container().find("ul li.jstree-closed, ul li.jstree-leaf").eq(0).height() || 18;
+
 				o = this._get_node(obj);
 				if(this.data.ui && this.is_selected(o)) { 
                     o = this._get_node(null, true); 
