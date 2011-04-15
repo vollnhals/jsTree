@@ -138,6 +138,10 @@
                 target: null,
 			};
 			this.get_container()
+                // ignore placeholder in rollback
+				.bind("get_rollback.jstree", $.proxy(function () { 
+                    placeholder.detach().hide();
+					}, this))
                 // save prepared_move data for later use in check_move
                 .bind("prepare_move.jstree", $.proxy(function (e, data) {
                         this.data.dnd_placeholder.prepared_move = data.rslt;
