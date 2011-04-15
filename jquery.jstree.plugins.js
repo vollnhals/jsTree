@@ -705,8 +705,10 @@
     $.jstree.plugin("dblclick_rename", {
 		__init : function () {
             var c = this.get_container();
-            c.delegate("a", "dblclick", function () {
+            c.delegate("a", "dblclick", function (e) {
                 c.jstree("rename", this);
+                // do not call generic double click handler, which disables text selections 
+                e.stopImmediatePropagation();
             });
         },
     });
