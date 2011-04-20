@@ -57,7 +57,7 @@
 
 /* placeholder height is set in js to match line height of li elements */
 /* placeholder width is set to match dragged element */
-#jstree-placeholder {background-color:red; margin-left: 25px; }
+#jstree-placeholder {background-color:red; margin-left: 35px; }
 
 /* IE6 BEGIN */
 .jstree-default li, 
