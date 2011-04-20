@@ -1,3 +1,6 @@
 [submodule "jstree-grid"]
 	path = jstree-grid
 	url = https://github.com/deitch/jstree-grid.git
+[submodule "php-websocket"]
+	path = php-websocket
+	url = https://github.com/roycamp/php-websocket.git
