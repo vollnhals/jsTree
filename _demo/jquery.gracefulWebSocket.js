@@ -156,7 +156,18 @@
 			}
 			
 			// create a new websocket or fallback
-			var ws = window.WebSocket ? new WebSocket(url) : new FallbackSocket();
+			var ws = null;
+            if (window.WebSocket) {
+                // patch WebSocket to send JSON data
+                ws = new WebSocket(url);
+            	ws._send = ws.send;
+		        ws.send = function(data) {
+			        return this._send($.toJSON(data));
+	        	};
+            } else {
+                ws = new FallbackSocket();
+            }
+
 	 		$(window).unload(function () { ws.close(); ws = null });
 			return ws;
 		}
