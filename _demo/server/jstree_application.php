@@ -1,10 +1,17 @@
 <?php
 
 require_once("lib/WebSocket/Application/Application.php");
+require_once("delta_updates.php");
 
 class JsTreeApplication extends \Websocket\Application\Application {
     private $clients = array();
-    private $seq_nr = 0;
+
+    function __construct() {
+        parent::__construct();
+        
+        $db = new PDO("mysql:host=localhost;dbname=jstree", "root", "");
+        $this->delta_updates = new DeltaUpdates($db);
+    }
 
     public function onConnect($client)
     {
@@ -20,21 +27,13 @@ class JsTreeApplication extends \Websocket\Application\Application {
     }
 
     public function onTick() {
-        // TODO: implement as described below or use queuing mechanism (zeromq, memcacheq)
-
-        // get all parent nodes that were changed since last seq_nr 
-        // $this->db->query("SELECT id, parent_id FROM {$this->table} WHERE id > {$this->seq_nr}");
-        $changed_parent_nodes = $this->change_notification->changed_parent_nodes();
-
-        // get all children, TODO: überlappungen abdecken, alle nodes zusammenfassen
-        $nodes = $this->tree->get_children($changed_parent_nodes
-
-        // transform to html
-        $data = $nodes->toHTML();
-
-        // send to clients
-        foreach ($this->clients as $client) {
-            $client->send($data);
+        $data = $this->delta_updates->encodedDeltaUpdate();
+        
+        if ($data !== false) {
+            // send to clients
+            foreach ($this->clients as $client) {
+                $client->send($data);
+            }
         }
     }
 
