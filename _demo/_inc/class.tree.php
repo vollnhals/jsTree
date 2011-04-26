@@ -1,4 +1,11 @@
 <?php
+
+require_once __DIR__ . "/../server/nodes_to_html.php";
+require_once __DIR__ . "/../server/delta_updates.php";
+
+// TODO: remove debugging, all calls to fb
+require_once __DIR__ . "/../server/FirePHPCore/fb.php";
+
 class _tree_struct {
 	// Structure table and fields
 	protected $table	= "";
@@ -475,22 +482,27 @@ class _tree_struct {
 }
 
 class json_tree extends _tree_struct { 
-	function __construct($table = "tree", $fields = array(), $add_fields = array("title" => "title", "type" => "type")) {
+	function __construct($table = "tree", $fields = array(), $add_fields = array("title" => "title", "type" => "type", "hint" => "hint")) {
 		parent::__construct($table, $fields);
 		$this->fields = array_merge($this->fields, $add_fields);
 		$this->add_fields = $add_fields;
+        
+        // TODO:
+        $db = new PDO("mysql:host=localhost;dbname=jstree", "root", "");
+        $this->delta_updates = new DeltaUpdates($db);
 	}
 
 	function create_node($data) {
 		$id = parent::_create((int)$data[$this->fields["id"]], (int)$data[$this->fields["position"]]);
 		if($id) {
+            $this->delta_updates->recordChange($data[$this->fields["id"]]);
 			$data["id"] = $id;
 			$this->set_data($data);
 			return  "{ \"status\" : 1, \"id\" : ".(int)$id." }";
 		}
 		return "{ \"status\" : 0 }";
 	}
-	function set_data($data) {
+	private function set_data($data) {
 		if(count($this->add_fields) == 0) { return "{ \"status\" : 1 }"; }
 		$s = "UPDATE `".$this->table."` SET `".$this->fields["id"]."` = `".$this->fields["id"]."` "; 
 		foreach($this->add_fields as $k => $v) {
@@ -501,9 +513,15 @@ class json_tree extends _tree_struct {
 		$this->db->query($s);
 		return "{ \"status\" : 1 }";
 	}
-	function rename_node($data) { return $this->set_data($data); }
+	function rename_node($data) { 
+        $node = $this->_get_node($data[$this->fields["id"]]);
+        // TODO: suboptimal, node refresh would be enough
+        $this->delta_updates->recordChange($node[$this->fields["parent_id"]]);
+        return $this->set_data($data); 
+    }
 
 	function move_node($data) { 
+        $node_before = $this->_get_node($data[$this->fields["id"]]);
 		$id = parent::_move((int)$data["id"], (int)$data["ref"], (int)$data["position"], (int)$data["copy"]);
 		if(!$id) return "{ \"status\" : 0 }";
 		if((int)$data["copy"] && count($this->add_fields)) {
@@ -522,18 +540,30 @@ class json_tree extends _tree_struct {
 				$i++;
 			}
 		}
+        $node_after = $this->_get_node($data[$this->fields["id"]]);
+        $this->delta_updates->recordChange($node_before[$this->fields["parent_id"]]);
+        if ($node_after[$this->fields["parent_id"]] != $node_before[$this->fields["parent_id"]])
+            $this->delta_updates->recordChange($node_after[$this->fields["parent_id"]]);
+
 		return "{ \"status\" : 1, \"id\" : ".$id." }";
 	}
 	function remove_node($data) {
+        $node = $this->_get_node($data[$this->fields["id"]]);
 		$id = parent::_remove((int)$data["id"]);
+        // TODO: suboptimal, node refresh would be enough
+        $this->delta_updates->recordChange($node[$this->fields["parent_id"]]);
 		return "{ \"status\" : 1 }";
 	}
 	function get_children($data) {
-		$tmp = $this->_get_children((int)$data["id"]);
+		$tmp = $this->_get_children((int)$data["id"], true);
 		if((int)$data["id"] === 1 && count($tmp) === 0) {
 			$this->_create_default();
-			$tmp = $this->_get_children((int)$data["id"]);
+			$tmp = $this->_get_children((int)$data["id"], true);
 		}
+
+        $result = NodesToHtml::toHTML(array((int)$data["id"] => $tmp));
+        return "<ul>" . current($result) . "</ul>";
+/*
 		$result = array();
 		if((int)$data["id"] === 0) return json_encode($result);
 		foreach($tmp as $k => $v) {
@@ -544,6 +574,7 @@ class json_tree extends _tree_struct {
 			);
 		}
 		return json_encode($result);
+*/
 	}
 	function search($data) {
 		$this->db->query("SELECT `".$this->fields["left"]."`, `".$this->fields["right"]."` FROM `".$this->table."` WHERE `".$this->fields["title"]."` LIKE '%".$this->db->escape($data["search_str"])."%'");
