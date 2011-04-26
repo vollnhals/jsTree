@@ -88,7 +88,11 @@ function dump(arr,level) {
 	}
 	return dumped_text;
 }
-var ws = $.gracefulWebSocket("ws://127.0.0.1:8080/");
+var ws = $.gracefulWebSocket("ws://127.0.0.1:8000/jstree");
+ws.onmessage = function (event) {
+    console.log(event.data);
+}
+
 //ws.send({"roen" : "bulu"});
 
 <!-- JavaScript neccessary for the tree -->
@@ -104,6 +108,23 @@ $(function () {
 			"plugins" : [ "themes", "pedantic_html_data", "ui", "crrm", "dnd_placeholder", "types", "hotkeys", "contextmenu", "span", "dblclick_rename", "tooltips", "select_created_nodes" ],
 			// Plugin configuration
 
+			"pedantic_html_data" : { 
+				// I chose an ajax enabled tree - again - as this is most common, and maybe a bit more complex
+				// All the options are the same as jQuery's except for `data` which CAN (not should) be a function
+				"ajax" : {
+					// the URL to fetch the data
+					"url" : "./server.php",
+					// this function is executed in the instance's scope (this refers to the tree instance)
+					// the parameter is the node being loaded (may be -1, 0, or undefined when loading the root nodes)
+					"data" : function (n) { 
+						// the result is fed to the AJAX request `data` option
+						return { 
+							"operation" : "get_children", 
+							"id" : n.attr ? n.attr("id").replace("node_","") : 1 
+						}; 
+					}
+				}
+			},
             // example for dynamic contextmenu based on type
             "contextmenu" : {
                 items : function (obj) {
@@ -227,6 +248,25 @@ $(function () {
 		})
 		.bind("create.jstree", function (e, data) {
                         $("#notification").text("created node for parent " + data.rslt.parent.attr("id") + ", pos: " + data.rslt.position + ", title: " + data.rslt.name);
+                        
+			$.post(
+				"./server.php", 
+				{ 
+					"operation" : "create_node", 
+					"id" : data.rslt.parent.attr("id").replace("node_",""), 
+					"position" : data.rslt.position,
+					"title" : data.rslt.name,
+					"type" : data.rslt.obj.attr("rel")
+				}, 
+				function (r) {
+					if(r.status) {
+						$(data.rslt.obj).attr("id", "node_" + r.id);
+					}
+					else {
+						$.jstree.rollback(data.rlbk);
+					}
+				}
+			);
 		})
 		.bind("remove.jstree", function (e, data) {
                         var not = "";
