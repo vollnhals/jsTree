@@ -15,6 +15,9 @@
 
 "use strict";
 
+// Firefox 4 needs global variables declared
+var placeholder;
+
 /*
  * jsTree DND plugin 1.0
  * Drag and drop plugin for moving/copying nodes
@@ -549,7 +552,7 @@
 			'#jstree-marker { padding:0; margin:0; line-height:12px; font-size:1px; overflow:hidden; height:12px; width:8px; position:absolute; top:-30px; z-index:10000; background-repeat:no-repeat; display:none; background-color:silver; } ';
 		$.vakata.css.add_sheet({ str : css_string });
 		m = $("<div>").attr({ id : "jstree-marker" }).hide().appendTo("body");
-        placeholder =  $("<li>").attr({ id : 'jstree-placeholder'}).hide();
+        placeholder = $("<li>").attr({ id : 'jstree-placeholder'}).hide();
 
 		$(document).bind("drag_start.vakata", function (e, data) {
 			if(data.data.jstree) { 
