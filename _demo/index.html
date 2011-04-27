@@ -88,9 +88,20 @@ function dump(arr,level) {
 	}
 	return dumped_text;
 }
-var ws = $.gracefulWebSocket("ws://127.0.0.1:8000/jstree");
+var ws = $.gracefulWebSocket("ws://127.0.0.1:8000/jstree", {
+    fallbackPollURL: "./server/websocket_fallback.php",
+    fallbackPollParams:  {
+        "seq_nr": function () {
+    		return $("#demo").data("seq_nr") || 0;
+    	}
+    }
+});
+
 ws.onmessage = function (event) {
-    console.log(event.data);
+    var data = $.evalJSON(event.data);
+    // set current seq_nr for websocket fallback
+    $("#demo").data("seq_nr", data.seq_nr);
+    console.log(data);
 }
 
 //ws.send({"roen" : "bulu"});
