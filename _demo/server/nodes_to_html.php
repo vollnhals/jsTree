@@ -41,17 +41,11 @@ class NodesToHTML {
     }
 
     public static function toHTML($nodes) {
-        echo "Nodes";
-        var_dump($nodes);
-        echo "\n\n";
         $html = array();
         foreach ($nodes as $id => &$children) {
             $html[$id] = static::childrenToHTML($children, $id);
         }
 
-        echo "HTML " ;
-        var_dump($html); 
-        echo "\n\n";
         return $html;
     }
 }

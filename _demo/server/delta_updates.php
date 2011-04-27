@@ -50,9 +50,7 @@ class DeltaUpdates {
         }
         // sort after left attribute
         ksort($parent_nodes);
-        echo "PARENT NODES ";
-        var_dump($parent_nodes);
-        echo "\n\n";
+
         // get changed nodes, discarding already included parents
         $changed_nodes = array();
         $right = 0;
