@@ -98,10 +98,26 @@ var ws = $.gracefulWebSocket("ws://127.0.0.1:8000/jstree", {
 });
 
 ws.onmessage = function (event) {
-    var data = $.evalJSON(event.data);
-    // set current seq_nr for websocket fallback
-    $("#demo").data("seq_nr", data.seq_nr);
-    console.log(data);
+    if (event.data) {
+        var data = $.evalJSON(event.data);
+        var tree = $("#demo");
+        // only overwrite tree nodes if data is newer
+        if ((int)data.seq_nr > (int)tree.data("seq_nr")) {
+            for (var id in data.nodes) {
+                var node = $("#node_" + id);
+                var children = node.children("ul");
+                if (children.length)
+                    children.replaceWith(data.nodes[id]);
+                else
+                    node.append(data.nodes[id]);
+            }
+            tree.jstree("clean_node");
+            tree.data("seq_nr", data.seq_nr);
+        }
+
+        // TODO: remove
+        console.log(data);
+    }
 }
 
 //ws.send({"roen" : "bulu"});
