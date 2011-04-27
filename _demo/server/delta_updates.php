@@ -9,7 +9,7 @@ class DeltaUpdates {
 
     function __construct($db, $seq_nr = 0) {
         $this->db = $db;
-        $this->seq_nr = $seq_nr;
+        $this->seq_nr = (int)$seq_nr;
     }
 
     public function recordChange($parent_id) {
