@@ -9,11 +9,7 @@ class WebSocketFallback {
     public function updates($seq_nr = 0) {
         // TODO: cleanup old recorded changes bases on logged in users
         $delta_updates = new DeltaUpdates($this->db, $seq_nr);
-        $data = $delta_updates->encodedDeltaUpdate();
-        if ($data === false)
-            $data = "{}";
-        
-        return $data;
+        return $delta_updates->encodedDeltaUpdate();
     }
 }
 

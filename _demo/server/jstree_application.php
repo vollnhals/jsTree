@@ -29,7 +29,7 @@ class JsTreeApplication extends \Websocket\Application\Application {
     public function onTick() {
         $data = $this->delta_updates->encodedDeltaUpdate();
         
-        if ($data !== false) {
+        if (!empty($data)) {
             // send to clients
             foreach ($this->clients as $client) {
                 $client->send($data);

@@ -67,7 +67,7 @@ class DeltaUpdates {
     public function encodedDeltaUpdate() {
         $changed_notes = $this->changedNodes();
         if (empty($changed_notes))
-            return false;
+            return "";
 
         $result = array(
             'nodes' => NodesToHTML::toHTML($changed_notes),
