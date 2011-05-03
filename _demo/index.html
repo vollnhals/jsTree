@@ -102,7 +102,9 @@ ws.onmessage = function (event) {
         var data = $.evalJSON(event.data);
         var tree = $("#demo");
         // only overwrite tree nodes if data is newer
-        if ((int)data.seq_nr > (int)tree.data("seq_nr")) {
+        var old_seq_nr = parseInt(tree.data("seq_nr")) || -1;
+        var new_seq_nr = parseInt(data.seq_nr);
+        if (new_seq_nr > old_seq_nr) {
             for (var id in data.nodes) {
                 var node = $("#node_" + id);
                 var children = node.children("ul");
@@ -112,7 +114,7 @@ ws.onmessage = function (event) {
                     node.append(data.nodes[id]);
             }
             tree.jstree("clean_node");
-            tree.data("seq_nr", data.seq_nr);
+            tree.data("seq_nr", new_seq_nr);
         }
 
         // TODO: remove
