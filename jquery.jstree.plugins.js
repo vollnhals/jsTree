@@ -729,7 +729,10 @@ var placeholder;
 		__init : function () {
             var c = this.get_container();
             c.bind("hover_node.jstree", function (e, data) {
-                var tooltip = c.jstree("get_text", data.rslt.obj) + "  -  " + data.rslt.obj.children("span").text();
+                var tooltip = c.jstree("get_text", data.rslt.obj);
+                var hint = data.rslt.obj.children("span").text();
+                if (hint)
+                    tooltip += "  -  " + hint;
                 data.rslt.obj.children("a").attr("title", tooltip);
             });
         },
