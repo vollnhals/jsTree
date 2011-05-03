@@ -755,3 +755,64 @@ var placeholder;
     });
 })(jQuery);
 //*/
+
+/*
+ * delta updates
+ *   expects JSON strings from Server, mapping ids to html code 
+ *   config params:
+ *     url
+ *     fallbackPollURL
+ */
+
+(function ($) {
+    $.jstree.plugin("delta_updates", {
+		__init : function () {
+            var tree = this.get_container();
+            var settings = this.get_settings().delta_updates;
+
+            var ws = $.gracefulWebSocket(settings.url, {
+                fallbackPollURL: settings.fallbackPollURL,
+                fallbackPollParams:  {
+                    "seq_nr": function () {
+                        return tree.data("seq_nr") || -1;
+                    }
+                }
+            });
+
+            ws.onmessage = function (event) {
+                if (event.data) {
+                    var data = $.evalJSON(event.data);
+                    // only overwrite tree nodes if data is newer
+                    var old_seq_nr = parseInt(tree.data("seq_nr")) || -1;
+                    var new_seq_nr = parseInt(data.seq_nr);
+                    if (new_seq_nr > old_seq_nr) {
+                        // remember which tree nodes were open
+                        var open_nodes = $(".jstree-open");
+
+                        for (var id in data.nodes) {
+                            var node = $("#node_" + id);
+                            var children = node.children("ul");
+                            // replace children if present, else create new children by appending
+                            if (children.length)
+                                children.replaceWith(data.nodes[id]);
+                            else
+                                node.append(data.nodes[id]);
+                        }
+
+                        // all jstree-open classes were lost: restore them
+                        open_nodes.each(function () {
+                            $("#" + $(this).attr("id")).filter(":has(li)").addClass("jstree-open");
+                        });
+                        // fix up remaining jstree classes
+                        tree.jstree("clean_node");
+
+                        tree.data("seq_nr", new_seq_nr);
+                    }
+                }
+            }
+        },
+    });
+})(jQuery);
+
+
+

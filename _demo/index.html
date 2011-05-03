@@ -88,51 +88,6 @@ function dump(arr,level) {
 	}
 	return dumped_text;
 }
-var ws = $.gracefulWebSocket("ws://127.0.0.1:8000/jstree", {
-    fallbackPollURL: "./server/websocket_fallback.php",
-    fallbackPollParams:  {
-        "seq_nr": function () {
-    		return $("#demo").data("seq_nr") || 0;
-    	}
-    }
-});
-
-ws.onmessage = function (event) {
-    if (event.data) {
-        var data = $.evalJSON(event.data);
-        var tree = $("#demo");
-        // only overwrite tree nodes if data is newer
-        var old_seq_nr = parseInt(tree.data("seq_nr")) || -1;
-        var new_seq_nr = parseInt(data.seq_nr);
-        if (new_seq_nr > old_seq_nr) {
-            // remember which tree nodes were open
-            var open_nodes = $(".jstree-open");
-
-            for (var id in data.nodes) {
-                var node = $("#node_" + id);
-                var children = node.children("ul");
-                // replace children if present, else create new children by appending
-                if (children.length)
-                    children.replaceWith(data.nodes[id]);
-                else
-                    node.append(data.nodes[id]);
-            }
-
-            // all jstree-open classes were lost: restore them
-            open_nodes.each(function () {
-                $("#" + $(this).attr("id")).filter(":has(li)").addClass("jstree-open");
-            });
-            // fix up remaining jstree classes
-            tree.jstree("clean_node");
-
-            tree.data("seq_nr", new_seq_nr);
-        }
-
-        // TODO: remove
-        console.log(data);
-    }
-}
-
 //ws.send({"roen" : "bulu"});
 
 <!-- JavaScript neccessary for the tree -->
@@ -145,9 +100,12 @@ $(function () {
 		.jstree({ 
 			// the list of plugins to include
 			//"plugins" : [ "themes", "html_data", "ui", "crrm", "cookies", "dnd", "types", "hotkeys", "contextmenu" ],
-			"plugins" : [ "themes", "pedantic_html_data", "ui", "crrm", "dnd_placeholder", "types", "hotkeys", "contextmenu", "span", "dblclick_rename", "tooltips", "select_created_nodes" ],
+			"plugins" : [ "themes", "pedantic_html_data", "ui", "crrm", "dnd_placeholder", "types", "hotkeys", "contextmenu", "span", "dblclick_rename", "tooltips", "select_created_nodes", "delta_updates" ],
 			// Plugin configuration
-
+            "delta_updates" : {
+                "url" : "ws://127.0.0.1:8000/jstree",
+                "fallbackPollURL" : "./server/websocket_fallback.php",
+            },
 			"pedantic_html_data" : { 
 				// I chose an ajax enabled tree - again - as this is most common, and maybe a bit more complex
 				// All the options are the same as jQuery's except for `data` which CAN (not should) be a function
