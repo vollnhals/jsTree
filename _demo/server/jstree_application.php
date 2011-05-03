@@ -35,6 +35,9 @@ class JsTreeApplication extends \Websocket\Application\Application {
                 $client->send($data);
             }
         }
+
+        // do not sleep too long, this impacts new incoming connections
+        usleep(50 * 1000);
     }
 
     public function onData($raw_data, $client)
