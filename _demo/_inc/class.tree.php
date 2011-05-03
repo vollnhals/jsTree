@@ -562,7 +562,7 @@ class json_tree extends _tree_struct {
 		}
 
         $result = NodesToHtml::toHTML(array((int)$data["id"] => $tmp));
-        return "<ul>" . current($result) . "</ul>";
+        return current($result);
 /*
 		$result = array();
 		if((int)$data["id"] === 0) return json_encode($result);
