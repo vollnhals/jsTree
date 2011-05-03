@@ -66,7 +66,8 @@ PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
 <script type="text/javascript">
 
 <!-- JavaScript neccessary for the tree -->
-var rollback_seq = 2147483647;
+var last_rollback = 2147483647;
+var last_success = -1;
 var seq = 0;
 $(function () {
 	// Settings up the tree - using $(selector).jstree(options);
@@ -260,7 +261,7 @@ $(function () {
 
 	data.rslt.o.each(function (i) {
                 if (!$.active) {
-                    rollback_seq = 2147483647;
+                    last_rollback = 2147483647;
                     seq = 0;
                 }
                 
@@ -279,13 +280,19 @@ $(function () {
 					},
 					success : function (r) {
 						if(!r.status) {
-                            console.log("rollback_seq: " + rollback_seq + "   this.seq: " + this.seq);
-                            if (this.seq < rollback_seq) { 
-                                rollback_seq = this.seq; 
+                            console.log("last_rollback: " + last_rollback + "   this.seq: " + this.seq);
+                            // only allow rollbacks in correct order
+                            // do not allow rollbacks after succeding updates
+                            if (this.seq < last_rollback && this.seq > last_success) { 
+                                last_rollback = this.seq; 
     							$.jstree.rollback(data.rlbk);
                             }
 						}
 						else {
+                            last_success = this.seq; 
+                            // TODO: think about if (this.seq > rollback_seq) RELOAD;
+                            // TODO: even better integrate rollback mechanism with $(#demo).data("seq_nr");
+
                             // TODO: seems uneccessary in default case. copy only?
 							$(data.rslt.oc).attr("id", "node_" + r.id);
 							if(data.rslt.cy && $(data.rslt.oc).children("UL").length) {
