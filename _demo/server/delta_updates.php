@@ -17,8 +17,12 @@ class DeltaUpdates {
         $query->execute(array((int)$parent_id));
     }
 
+    public function discardOldChanges() {
+        $query = $this->db->prepare("DELETE FROM " . self::table_name . " WHERE id <= ?");
+        $query->execute(array($this->seq_nr));
+    }
+
     private function changedParentIds() {
-        // TODO: implement as described below or use queuing mechanism (zeromq, memcacheq)
         // TODO: transaction for all db requests?
         $parent_ids = array();
 
